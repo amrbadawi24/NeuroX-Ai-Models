@@ -1,0 +1,8 @@
+names:
+- glioma
+- meningioma
+- pituitary
+nc: 3
+path: E:\Amr college\Grad project\Models\YOLO_SEG\yolo_seg_dataset
+train: train/images
+val: test/images

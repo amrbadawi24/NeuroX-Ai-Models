@@ -1,0 +1,33 @@
+def preprocess_image(img):
+    img = cv2.resize(img, (224, 224))
+    # img = img.astype(np.float32)     
+    return img
+
+def preprocess_mask(mask, target_size=(224, 224)):
+    mask = cv2.resize(mask, target_size, interpolation=cv2.INTER_NEAREST)
+    return mask
+
+Text convertion with
+converts segmentation masks → YOLO segmentation label format as txt For brisc 2025 dataset - harsh (many lines not in actual png)  (Balanced version)
+
+
+model = YOLO('yolov8x-seg.pt')
+
+model.load('../YOLO_classify/runs/classify/yolo_with_my_preproc/weights/best.pt')
+
+model.train(
+    data='yolo_seg_dataset/dataset.yaml',
+    epochs=100, 
+    imgsz=224,
+    batch=16,
+    name='yolo_seg_from_cls_224(x)',
+    device=0,
+    workers=4,
+    #augmentation
+    degrees=10.0,          
+    fliplr=0.5,        
+    hsv_h=0.02,            
+    #early stopping
+    patience=20,
+    dropout=0.1,
+)

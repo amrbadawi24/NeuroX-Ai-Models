@@ -1,0 +1,66 @@
+def preprocess_image(img):
+    img = cv2.resize(img, (224, 224))
+    # img = img.astype(np.float32)     
+    return img
+
+def preprocess_mask(mask, target_size=(224, 224)):
+    mask = cv2.resize(mask, target_size, interpolation=cv2.INTER_NEAREST)
+    return mask
+
+
+converts segmentation masks → YOLO segmentation label format as txt For brisc 2025 dataset - harsh (many lines not in actual png)(Balanced)
+
+
+import torch
+from ultralytics import YOLO
+
+model = YOLO('yolov8x-seg.pt')
+model.load('../YOLO_classify/runs/classify/yolo_with_my_preproc/weights/best.pt')
+
+results = model.train(
+    data='yolo_seg_dataset/dataset.yaml',
+    epochs=100,
+    imgsz=224,                     # ↑ from 224, safer for 4GB
+    batch=16,
+    device=0,
+    workers=2,
+
+    # Loss weights – segmentation‑focused but stable
+    box=1.0,
+    cls=0.1,
+    mask_ratio=8,                  
+    dfl=1.5,
+
+    # Regularization
+    dropout=0.15,
+    weight_decay=0.001,
+
+    # Mask quality
+    overlap_mask=False,
+    retina_masks=True,
+
+    # Augmentation – minimal per your request
+    degrees=10.0,
+    fliplr=0.5,
+    hsv_h=0.0, hsv_s=0.0, hsv_v=0.0,
+    translate=0.1,
+    scale=0.5,
+    mosaic=0.0,
+    mixup=0.0,
+    copy_paste=0.0,
+
+    # Optimization
+    optimizer='AdamW',
+    lr0=1e-3,
+    lrf=0.01,
+    momentum=0.937,
+    warmup_epochs=3,
+    warmup_momentum=0.8,
+    cos_lr=True,
+
+    patience=20,
+    name='yolo_seg_from_cls(x)3_deepseek',
+)
+
+tried to focus more in segmentation and added Regularization to fix the Overfitting 
+but didn't achive it's goal proporly
